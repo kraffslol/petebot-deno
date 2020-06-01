@@ -1,14 +1,7 @@
 import { ApiClient } from "../api.ts";
+import { DiscordMessageEventData } from "../types.ts";
 
-export class BaseCommand {
-  public prefix!: string;
-
-  constructor(prefix: string = "") {
-    this.prefix = prefix;
-  }
-
-  public handler(
-    channelId: string,
-    api: ApiClient,
-  ) {}
+export interface BaseCommand {
+  prefix: string;
+  handler(message: DiscordMessageEventData, api: ApiClient): void;
 }

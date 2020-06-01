@@ -57,6 +57,7 @@ export class Bot {
   private sendIdentify() {
     this.send(OpCode.IDENTIFY, {
       token: this.token,
+      intents: 513,
       properties: {
         "$os": "linux",
         "$browser": "pete",
@@ -94,7 +95,7 @@ export class Bot {
         this.commands.some(({ prefix, handler }) => {
           if (message.content.startsWith(prefix)) {
             handler(
-              message.channel_id,
+              message,
               this.api,
             );
             return true;
