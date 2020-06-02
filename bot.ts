@@ -16,7 +16,6 @@ import { ApiClient } from "./api.ts";
 export class Bot {
   private sock?: WebSocket;
   private token: string;
-  private endpoint: string;
   private sessionId: string = "";
   private heartbeatIntervalId?: number;
   private sequenceNo?: number;
@@ -24,11 +23,10 @@ export class Bot {
   private commands!: BaseCommand[];
   public api: ApiClient;
 
-  constructor(endpoint: string, token: string, api: ApiClient) {
-    this.endpoint = endpoint;
+  constructor(endpoint: string, token: string) {
     this.token = token;
     this.commands = [];
-    this.api = api;
+    this.api = new ApiClient(endpoint, token);
   }
 
   private send(opCode: OpCode, data: any) {
@@ -67,8 +65,9 @@ export class Bot {
   }
 
   public async connect() {
-    this.sock = await connectWebSocket(this.endpoint);
-    log.info(`Connected to ${this.endpoint}`);
+    const gateway = await this.api.getGateway();
+    this.sock = await connectWebSocket(gateway);
+    log.info(`Connected to ${gateway}`);
     await Promise.resolve(this.handleWSMessages()).catch(console.error);
     if (!this.sock.isClosed) {
       await this.disconnect();
@@ -92,9 +91,9 @@ export class Bot {
       case "MESSAGE_CREATE":
         const message = payload.d as DiscordMessageEventData;
         log.info(`${message.author.username}: ${message.content}`);
-        this.commands.some(({ prefix, handler }) => {
-          if (message.content.startsWith(prefix)) {
-            handler(
+        this.commands.some((cmd) => {
+          if (message.content.startsWith(cmd.prefix)) {
+            cmd.handler(
               message,
               this.api,
             );

@@ -5,7 +5,7 @@ import { DiscordMessageEventData } from "../types.ts";
 export class PingCommand implements BaseCommand {
   prefix = "!ping";
 
-  public handler = (message: DiscordMessageEventData, api: ApiClient) => {
+  public handler(message: DiscordMessageEventData, api: ApiClient) {
     api.createMessage(message.channel_id, "pong");
-  };
+  }
 }
